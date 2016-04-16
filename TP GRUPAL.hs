@@ -10,7 +10,11 @@ dameTamañoDelArchivo :: Archivo -> Int
 dameTamañoDelArchivo (Archivo _ contenido) =  (*8)(length (contenido))
 
 --Punto2)
-PRUEBA COMMIT
- modificacion desde la pagina
+archivoEsVacio = (==0).dameTamañoDelArchivo
+
+--Punto3) 
+--Para saber la cantidad de lineas de un archivo contamos la cantidad de saltos \nombre
+
+
 
 
