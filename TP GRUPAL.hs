@@ -13,7 +13,11 @@ dameTamañoDelArchivo (Archivo _ contenido) =  (*8)(length (contenido))
 archivoEsVacio = (==0).dameTamañoDelArchivo
 
 --Punto3) 
---Para saber la cantidad de lineas de un archivo contamos la cantidad de saltos \nombre
+--Para saber la cantidad de lineas de un archio usamos lines que cuando ve 
+-- un \n salta de linea, pone en una lista
+cantidadDeLineasArch (Archivo _ contenido) = length (lines (contenido)) 
+
+--punto4)
 
 
 
