@@ -56,26 +56,26 @@ reemplazarUnaLinea :: Int -> String -> Archivo -> Archivo
 reemplazarUnaLinea  numeroDeLinea  contenidoAAgregar (Archivo nombre contenido) = (Archivo nombre ((unlines (take (numeroDeLinea-1) (lines contenido))) ++ contenidoAAgregar ++ "\n" ++ (unlines (drop numeroDeLinea (lines contenido))))) 
 
 --Punto10)
+buscarYReemplazar :: String->String->Archivo->Archivo
 buscarYReemplazar palabraAReemplazar palabraNueva (Archivo nombre contenido) = (Archivo nombre (unlines (map unwords (map (map (reemplazarPalabra palabraNueva palabraAReemplazar)) (map words (lines contenido))))))
 
+reemplazarPalabra :: String->String->String->String
 reemplazarPalabra palabraNueva palabraAReemplazar palabraActual
- | palabraAReemplazar == palabraActual = palabraNueva
- | otherwise = palabraActual
+                               | palabraAReemplazar == palabraActual = palabraNueva
+                               | otherwise = palabraActual
 
 --Punto11)
 
-
+wrappearLasLineas :: Archivo->Archivo
 wrappearLasLineas (Archivo nombre contenido) = (Archivo nombre (unlines (map recursiva (lines(contenido)))))
-											 
-											 
-recursiva linea | length linea <=4 = linea
-				| otherwise = (take 4 linea) ++" \n "++(recursiva(drop 4 linea))							 
-											 
 
-											 
-											 
-											 
+recursiva :: String->String	
+recursiva linea  
+ | length linea <=4 = linea
+ | otherwise = (take 4 linea) ++" \n "++(recursiva(drop 4 linea))							 
 --Punto12)
+
+modificacionInutil :: (Archivo->Archivo)->Archivo->Bool
 modificacionInutil funcionModificacion (Archivo nombre contenido ) = (funcionModificacion (Archivo nombre contenido)) == (Archivo nombre contenido) 
  
 
