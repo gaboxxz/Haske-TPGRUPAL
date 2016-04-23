@@ -16,17 +16,24 @@ isSpace caracter = (==) caracter ' ' || (==) caracter '\n' || (==) caracter '\t'
 
 --OPERACIONES BASICAS SOBRE ARCHIVOS
 
+dameNombre :: Archivo -> String
+dameContenido :: Archivo -> String 
+
+dameContenido (Archivo _ contenido) = contenido
+dameNombre (Archivo nombre _) = nombre
+
 --Punto 1)
 
 dameTamañoDelArchivo :: Archivo -> Int
-dameTamañoDelArchivo (Archivo _ contenido) =  (*8)(length (contenido))
+dameTamañoDelArchivo archivo =  ((*8).length.dameContenido) archivo
 
 dameTamañoDelArchivoPrueba1 = dameTamañoDelArchivo archivoPrueba1
+dameTamañoDelArchivoPrueba2 = dameTamañoDelArchivo archivoPrueba2
 
 --Punto2)
 
 archivoVacio :: Archivo -> Bool
-archivoVacio (Archivo _ contenido) =  (==0) (length (contenido))
+archivoVacio =  (==0).dameTamañoDelArchivo
 
 archivoVacioPrueba1 = archivoVacio archivoPrueba1
 archivoVacioPrueba2 = archivoVacio archivoPrueba2
@@ -42,7 +49,7 @@ dameCantidadDeLineasPrueba2 = dameCantidadDeLineas archivoPrueba2
 --Punto4)
 
 algunaLineaBlanca :: Archivo -> Bool
-algunaLineaBlanca (Archivo _ contenido ) =  any (==True) (map (all isSpace) (lines contenido))
+algunaLineaBlanca =  ((any (all isSpace)).lines.dameContenido)
 
 algunaLineaBlancaPrueba1 = algunaLineaBlanca archivoPrueba1
 algunaLineaBlancaPrueba2 = algunaLineaBlanca archivoPrueba2
@@ -50,7 +57,9 @@ algunaLineaBlancaPrueba2 = algunaLineaBlanca archivoPrueba2
 --Punto5)
 
 esDeExtencionHS :: Archivo -> Bool
-esDeExtencionHS (Archivo nombre _ ) = ((=="sh.").(take 3).reverse) nombre
+esDeExtencionHS = (=="sh.").darVueltaYTomarUltimosTres.dameNombre
+
+darVueltaYTomarUltimosTres = (take 3).reverse
 
 esDeExtencionHSPrueba1 = esDeExtencionHS archivoPrueba1
 esDeExtencionHSPrueba2 = esDeExtencionHS archivoPrueba2
@@ -67,8 +76,14 @@ renombrarArchivoPrueba1 = renombrarArchivo "NOMBRE NUEVO" archivoPrueba1
 --Punto7)
 
 agregarNuevaLinea :: Int -> String -> Archivo -> Archivo
-agregarNuevaLinea numeroDeLinea contenidoAAgregar (Archivo nombre contenido) =(Archivo nombre (unlines (take numeroDeLinea (lines contenido)) ++ contenidoAAgregar ++ "\n" ++ (unlines (drop numeroDeLinea (lines contenido)))))
+lineasAntesDe :: Int -> String -> String
+lineasDespuesDe :: Int -> String -> String
 
+agregarNuevaLinea numeroDeLinea contenidoAAgregar (Archivo nombre contenido) = (Archivo nombre ((lineasAntesDe numeroDeLinea contenido) ++ contenidoAAgregar ++ "\n" ++ (lineasDespuesDe numeroDeLinea contenido)))
+
+lineasAntesDe numero = unlines.(take numero).lines
+lineasDespuesDe numero =  unlines.(drop numero).lines 
+ 
 agregarNuevaLineaPrueba1 = agregarNuevaLinea 2 "SOY UNA NUEVA LINEA" archivoPrueba1
 agregarNuevaLineaPrueba2 = agregarNuevaLinea 1 "SOY UNA NUEVA LINEA" archivoPrueba2
 
@@ -77,7 +92,7 @@ agregarNuevaLineaPrueba2 = agregarNuevaLinea 1 "SOY UNA NUEVA LINEA" archivoPrue
 --Punto8)
 
 quitarUnaLinea :: Int -> Archivo -> Archivo
-quitarUnaLinea numeroDeLinea (Archivo nombre contenido) = (Archivo nombre ((unlines (take (numeroDeLinea-1) (lines contenido))) ++ (unlines (drop numeroDeLinea (lines contenido))))) 
+quitarUnaLinea numeroDeLinea (Archivo nombre contenido) = (Archivo nombre (((lineasAntesDe (numeroDeLinea-1) contenido)) ++ (lineasDespuesDe numeroDeLinea contenido))) 
 
 quitarUnaLineaPrueba1 = quitarUnaLinea 1 archivoPrueba1
 quitarUnaLineaPrueba2 = quitarUnaLinea 5 archivoPrueba2
@@ -85,7 +100,7 @@ quitarUnaLineaPrueba2 = quitarUnaLinea 5 archivoPrueba2
 --Punto9) 
 
 reemplazarUnaLinea :: Int -> String -> Archivo -> Archivo
-reemplazarUnaLinea  numeroDeLinea  contenidoAAgregar (Archivo nombre contenido) = (Archivo nombre ((unlines (take (numeroDeLinea-1) (lines contenido))) ++ contenidoAAgregar ++ "\n" ++ (unlines (drop numeroDeLinea (lines contenido))))) 
+reemplazarUnaLinea  numeroDeLinea  contenidoAAgregar (Archivo nombre contenido) = (Archivo nombre (((lineasAntesDe (numeroDeLinea-1) contenido)) ++ contenidoAAgregar ++ "\n" ++ (lineasDespuesDe numeroDeLinea contenido))) 
 
 reemplazarUnaLineaPrueba1 = reemplazarUnaLinea 2 "NUEVA LINEA" archivoPrueba1
 reemplazarUnaLineaPrueba2 = reemplazarUnaLinea 3 "NUEVA LINEA" archivoPrueba2
@@ -118,12 +133,8 @@ wrappearLineasPrueba3 = wrappearLineas archivoPrueba3
 --Punto12)
 
 modificacionInutil :: (Archivo -> Archivo) -> Archivo -> Bool
-dameNombre :: Archivo -> String
-dameContenido :: Archivo -> String 
 
 modificacionInutil funcionModificacion (Archivo nombre contenido) = dameNombre (funcionModificacion (Archivo nombre contenido)) == nombre && words (dameContenido (funcionModificacion (Archivo nombre contenido))) == words contenido
-dameNombre (Archivo nombre contenido) = nombre
-dameContenido (Archivo nombre contenido) = contenido
 
 modificacionInutilPrueba1 = modificacionInutil (renombrarArchivo "NUEVO NOMBRE") archivoPrueba1
 modificacionInutilPrueba2 = modificacionInutil (buscarYReemplazar "PEPE" "PALABRANUEVA") archivoPrueba1
@@ -195,11 +206,18 @@ mayorCambioPrueba2 = mayorCambio [([(buscarYReemplazar "Paradigmas" "HOLA") , (a
 --Punto16)
 
 serieRevisionesDirectorio :: [([(Archivo -> Archivo)] , Archivo)] -> [Archivo]
-
 serieRevisionesDirectorio lista = zipWith (\ x y -> x y) (map (foldl1 (.)) (map fst lista)) (map snd lista)
 
 serieRevisionesDirectorioPrueba1 = serieRevisionesDirectorio [([(buscarYReemplazar "Paradigmas" "HOLA")], archivoPrueba1 ) , ([(agregarNuevaLinea 5 "SOY UNA NUEVA LINEA DEL ARCHIVO 2")] , archivoPrueba2)]
 serieRevisionesDirectorioPrueba2 = serieRevisionesDirectorio [([(buscarYReemplazar "Paradigmas" "HOLA") , (agregarNuevaLinea 2 "SOY UNA NUEVA LINEA DEL ARCHIVO 3")], archivoPrueba3) , ([(buscarYReemplazar "Paradigmas" "HOLA") , (agregarNuevaLinea 2 "SOY UNA NUEVA LINEA DEL ARCHIVO 4")] , archivoPrueba4)]
+
+
+nuevaSerieRevisionesDirectorio :: [Archivo] -> [[Archivo -> Archivo]] -> [Archivo]
+nuevaSerieRevisionesDirectorio listaDeArchivos listaDeModificaciones = zipWith (\ a m -> m a) listaDeArchivos (map (foldl1 (.)) listaDeModificaciones)
+
+nuevaSerieRevisionesDirectorioPrueba1 = nuevaSerieRevisionesDirectorio [archivoPrueba1, archivoPrueba2] [[buscarYReemplazar "Paradigmas" "HOLA", agregarNuevaLinea 5 "SOY UNA NUEVA LINEA DEL ARCHIVO 2"], [agregarNuevaLinea 5 "SOY UNA NUEVA LINEA DEL ARCHIVO 2", buscarYReemplazar "Paradigmas" "HOLA"] ]
+nuevaSerieRevisionesDirectorioPrueba2 = nuevaSerieRevisionesDirectorio [archivoPrueba3, archivoPrueba4] [[buscarYReemplazar "Paradigmas" "HOLA", agregarNuevaLinea 5 "SOY UNA NUEVA LINEA DEL ARCHIVO 2"], [agregarNuevaLinea 5 "SOY UNA NUEVA LINEA DEL ARCHIVO 2", buscarYReemplazar "Paradigmas" "HOLA"] ]
+
 
 --serieRevisionesDirectorio recibe por ejemplo una lista asi [(listaDeRevisiones1 , archivo1),(listaDeRevisiones2, archivo2),...,(listaDeRevisionesN, archivoN)]
 
